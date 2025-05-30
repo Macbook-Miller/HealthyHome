@@ -35,4 +35,24 @@ class AuthViewModel: ObservableObject {
     }
     
     
+    func signup(email: String, password: String) {
+        authError = nil // clearing any prev errors
+        
+        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self.authError = error.localizedDescription
+                }
+                else {
+                    self.isLoggedIn = true
+                    // TODO: Add Firestore user creation
+                    
+                }
+            }
+        }
+            
+        
+    }
+    
+    
 }
