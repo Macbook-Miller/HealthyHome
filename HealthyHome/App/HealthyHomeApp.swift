@@ -17,7 +17,7 @@ struct HealthyHomeApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppView()
         }
     }
 }
