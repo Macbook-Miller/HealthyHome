@@ -8,9 +8,28 @@
 import SwiftUI
 
 struct LocationsView: View {
+    
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        
+        VStack {
+            VStack {
+                Button(action: {
+                    
+                }) {
+                    Text("Create new")
+                        .foregroundColor(Color.white)
+                        .padding()
+                        .frame(maxWidth: 120)
+                        .background(Color("BtnBlack"))
+                        .cornerRadius(8)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .backgroundGradient()
     }
+    
 }
 
 #Preview {

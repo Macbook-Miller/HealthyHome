@@ -6,3 +6,13 @@
 //
 
 import Foundation
+
+
+struct Location: Identifiable, Codable {
+    var id: String = UUID().uuidString
+    var address: String
+    var sqm: Int
+    var rooms: Int
+    var type: String
+    var members: Int
+}

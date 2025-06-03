@@ -8,8 +8,23 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @EnvironmentObject var authVM: AuthViewModel
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        
+        VStack {
+            Button(action: {
+                
+            }) {
+                Text("Log out")
+                    .foregroundColor(Color.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color("BtnBlack"))
+                    .cornerRadius(8)
+            }
+        }
+        .padding(.horizontal, 20)
     }
 }
 

@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseFirestore
 
 // Class for managing everythingg related to Authentication.
 class AuthViewModel: ObservableObject {
@@ -45,14 +46,36 @@ class AuthViewModel: ObservableObject {
                 }
                 else {
                     self.isLoggedIn = true
-                    // TODO: Add Firestore user creation
+                    
+                    guard let uid = result?.user.uid else { return }
+                    
+                    let db = Firestore.firestore()
+                    db.collection("users").document(uid).setData([
+                        "email": email,
+                        "createdAt" : Timestamp()
+                    ]) { error in
+                        if let error = error {
+                            print("Error creating Firestore user doc: \(error.localizedDescription)")
+                        } else {
+                            print("User document created successfully in Firestore")
+                        }}
+                    
                     
                 }
             }
-        }
             
+            
+        }
+        
         
     }
-    
-    
+    // Logout method
+    func logout() {
+        do {
+            try Auth.auth().signOut()
+            self.isLoggedIn = false
+        } catch {
+            print("Error signing out: \(error.localizedDescription)")
+        }
+    }
 }

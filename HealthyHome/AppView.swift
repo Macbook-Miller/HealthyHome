@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppView: View {
-    @StateObject var authVM = AuthViewModel()
+    @EnvironmentObject var authVM: AuthViewModel
     
     var body: some View {
         Group {

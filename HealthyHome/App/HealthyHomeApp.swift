@@ -10,6 +10,7 @@ import Firebase
 
 @main
 struct HealthyHomeApp: App {
+    @StateObject var authVM = AuthViewModel()
     
     init() {
         FirebaseApp.configure()
@@ -18,6 +19,7 @@ struct HealthyHomeApp: App {
     var body: some Scene {
         WindowGroup {
             AppView()
+                .environmentObject(authVM)
         }
     }
 }

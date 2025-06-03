@@ -45,10 +45,11 @@ struct LoginView: View {
                     Text("Login")
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.accentColor)
+                        .background(Color("BtnBlack"))
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
+                
                 
                 // Opens my sheet for signingup
                 Button(action:  {
@@ -56,14 +57,17 @@ struct LoginView: View {
                 } ) {
                     Text("Sign-up")
                         .foregroundColor(.accentColor)
+                        
                 }
             }
+            
             
             Button("Forgot password") {
                 forgotPass = true
             }
         }
-        .padding()
+        .padding(.horizontal, 20)
+        .backgroundGradient()
         .sheet(isPresented: $showSignup) {
             SignupView(authVM: authVM)
         }
