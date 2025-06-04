@@ -9,6 +9,7 @@ import Foundation
 import FirebaseFirestore
 
 class LocationsViewModel: ObservableObject {
+    @Published var locations: [Location] = []
     let db = Firestore.firestore()
     
     func createLocation(for uid: String, location: Location) {
@@ -28,6 +29,35 @@ class LocationsViewModel: ObservableObject {
                 }
                 else {
                     print("Location created succesful")
+                }
+            }
+    }
+
+    func fetchLocations(for uid: String) {
+        db.collection("users")
+            .document(uid)
+            .collection("locations")
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching locations: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let documents = snapshot?.documents else {
+                    print("No documents found.")
+                    return
+                }
+
+                self.locations = documents.compactMap { doc in
+                    let data = doc.data()
+                    return Location(
+                        id: doc.documentID,
+                        address: data["address"] as? String ?? "",
+                        sqm: data["sqm"] as? Int ?? 0,
+                        rooms: data["rooms"] as? Int ?? 0,
+                        type: data["type"] as? String ?? "",
+                        members: data["members"] as? Int ?? 1
+                    )
                 }
             }
     }

@@ -14,10 +14,18 @@ class AuthViewModel: ObservableObject {
     //Login state saved here:
     @Published var isLoggedIn: Bool = false
     @Published var authError: String?
+    @Published var user: User? = nil
+    
+    private var authStateHandle: AuthStateDidChangeListenerHandle?
     
     init() {
-        // This is a firebase auth feature that returns the currently logged in user, if there is one.
         self.isLoggedIn = Auth.auth().currentUser != nil
+        self.user = Auth.auth().currentUser
+        
+        authStateHandle = Auth.auth().addStateDidChangeListener { _, user in
+            self.user = user
+            self.isLoggedIn = user != nil
+        }
     }
     
     func login(email: String, password: String) {

@@ -151,16 +151,7 @@ struct HomeView: View {
                 }
                 .padding(.top, 15)
                 
-                Button(action: {
-                    authVM.logout()
-                }) {
-                    Text("Log out")
-                        .foregroundColor(Color.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color("BtnBlack"))
-                        .cornerRadius(8)
-                }
+               
                 
                 Spacer()
             }
@@ -217,7 +208,7 @@ struct HomeView: View {
                         Spacer()
                         
                         Button(action: {
-                            // Edit home sheet here
+                            // To leaderboard Sheet
                         }) {
                             Image(systemName: "arrow.right")
                                 .foregroundColor(.white)
@@ -228,6 +219,8 @@ struct HomeView: View {
                         }
                         
                     }
+                    
+                    
                     
                 }
                 .frame(maxWidth: 132, maxHeight: 152)

@@ -16,8 +16,8 @@ struct CreateLocationSheet: View {
     @State private var address: String = ""
     @State private var sqm: String = ""
     @State private var rooms: String = ""
-    @State private var type: String = ""
-    @State private var members: String = ""
+    @State private var type: String = "Home"
+    @State private var members: Int = 1
     
     
     var body: some View {
@@ -29,16 +29,28 @@ struct CreateLocationSheet: View {
                         .keyboardType(.numberPad)
                     TextField("Rooms", text: $rooms)
                         .keyboardType(.numberPad)
-                    TextField("Type", text: $type)
-                    TextField("Members", text: $members)
-                        .keyboardType(.numberPad)
+                    Picker("Type", selection: $type) {
+                        Text("Home").tag("Home")
+                        Text("Vacation Home").tag("Vacation Home")
+                        Text("Apartment").tag("Apartment")
+                    }
+                    .pickerStyle(.menu)
+                    HStack {
+                        Text("Members")
+                        Spacer()
+                        Text("\(members)")
+                            
+                    }
+                    .foregroundColor(.gray)
                 }
 
                 Button(action: {
-                    guard let uid = $authVM.user.uid else {
+                    print("Tapped Create Location")
+                    guard let uid = authVM.user?.uid else {
                         print("No user UID found.")
                         return
                     }
+                    print("UID found: \(uid)")
 
                     let location = Location(
                         id: UUID().uuidString,
@@ -46,13 +58,19 @@ struct CreateLocationSheet: View {
                         sqm: Int(sqm) ?? 0,
                         rooms: Int(rooms) ?? 0,
                         type: type,
-                        members: Int(members) ?? 0
+                        members: Int(members)
                     )
+                    print("Creating location with address: \(address)")
 
                     locationsVM.createLocation(for: uid, location: location)
                     dismiss()
                 }) {
                     Text("Create Location")
+                        .foregroundColor(Color.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color("BtnBlack"))
+                        .cornerRadius(8)
                 }
             }
             .navigationTitle("New Location")

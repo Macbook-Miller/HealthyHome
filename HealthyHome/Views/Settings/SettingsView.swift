@@ -14,7 +14,7 @@ struct SettingsView: View {
         
         VStack {
             Button(action: {
-                
+                authVM.logout()
             }) {
                 Text("Log out")
                     .foregroundColor(Color.white)

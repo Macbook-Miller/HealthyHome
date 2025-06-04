@@ -13,7 +13,8 @@ struct AppView: View {
     var body: some View {
         Group {
             if authVM.isLoggedIn {
-                HomeView()
+                Navigation()
+                    .environmentObject(authVM)
             } else {
                 LoginView(authVM: authVM)
             }
