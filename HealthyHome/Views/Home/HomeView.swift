@@ -9,16 +9,33 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var selectedLocationManager: SelectedLocationManager
+    @EnvironmentObject var locationsVM: LocationsViewModel
+    @EnvironmentObject var tasksVM: TasksViewModel
+    @Binding var selectedTab: Int
+    
+    var selectedLocation: Location? {
+        let loc = locationsVM.locations.first(where: { $0.id == selectedLocationManager.locationID})
+        print("HomeView: selectedLocation = \(loc?.address ?? "nil")")
+        return loc
+    }
+    
     
     
     var body: some View {
+        let locationID = selectedLocationManager.locationID
+        let locationTasks = tasksVM.tasks.filter { $0.locationID == locationID }
+        let healthPercent = locationTasks.healthPercentage
+        let healthFraction = locationTasks.healthFraction
         
         VStack {
+            
+            
             
             HStack(alignment: .top) {
                 
                 VStack {
-                    Text("64%")
+                    Text("\(healthPercent)%")
                         .font(.system(size: 68, weight: .light))
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
@@ -47,10 +64,10 @@ struct HomeView: View {
                     
                     VStack(alignment: .leading) {
                         
-                        Text("Home")
+                        Text("\(selectedLocation?.type ?? "-")")
                             .font(.system(size: 18, weight: .regular))
                             .opacity(0.3)
-                        Text("Søparken 27")
+                        Text("\(selectedLocation?.address ?? "-")")
                             .font(.system(size: 22, weight: .semibold))
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
@@ -71,7 +88,7 @@ struct HomeView: View {
                 
                 VStack {
                     
-                    ProgressView(value: 0.64)
+                    ProgressView(value: healthFraction)
                         .progressViewStyle(LinearProgressViewStyle(tint: Color("BtnBlack")))
                         .scaleEffect(x: 1, y: 2, anchor: .center)
                         .offset(y: -10)
@@ -81,16 +98,16 @@ struct HomeView: View {
                     HStack  {
                         
                         VStack(alignment: .leading) {
-                            Text("Type: House")
-                            Text("Sqm: 110")
+                            Text("Type: \(selectedLocation?.type ?? "-")")
+                            Text("Sqm: \(selectedLocation?.sqm ?? 0)")
                         }
                         .font(.system(size: 15, weight: .regular))
                         
                         Spacer()
                         
                         VStack(alignment: .leading) {
-                            Text("Rooms: 3")
-                            Text("Members: 2")
+                            Text("Rooms: \(selectedLocation?.rooms ?? 0)")
+                            Text("Members: \(selectedLocation?.members ?? 1)")
                         }
                         .font(.system(size: 15, weight: .regular))
                         
@@ -135,7 +152,7 @@ struct HomeView: View {
                     Spacer()
                     
                     Button(action: {
-                        // Edit home sheet here
+                        selectedTab = 2
                     }) {
                         Text("View all")
                             .foregroundColor(.white)
@@ -144,14 +161,50 @@ struct HomeView: View {
                             .background(Color("BtnBlack"))
                             .cornerRadius(8)
                     }
-                    
-                    
-                    
-                    
                 }
                 .padding(.top, 15)
                 
-               
+                // Pending taskss
+                let pendingTasks = tasksVM.tasks.filter { $0.isCompleted == false && $0.dueDate < Date() }
+                
+                if pendingTasks.isEmpty {
+                    Text("No pending tasks!")
+                        .foregroundColor(.gray)
+                        .padding(.top, 15)
+                }
+                else {
+                    ScrollView {
+                        ForEach(pendingTasks) { task in
+                            HStack {
+                                Button(action: {
+                                    var updatedTask = task
+                                    updatedTask.isCompleted.toggle()
+                                    if let userID = authVM.user?.uid {
+                                        tasksVM.updateTask(updatedTask, from: userID, locationID: locationID)
+                                    }
+                                }) {
+                                    Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                                        .resizable()
+                                        .frame(width: 24, height: 24)
+                                        .foregroundColor(task.isCompleted ? .green : .gray)
+                                }
+                                
+                                VStack(alignment: .leading) {
+                                    Text(task.title)
+                                        .font(.system(size: 14, weight: .medium))
+                                    
+                                    Text(task.dueDate, style: .date)
+                                        .foregroundColor(.gray)
+                                        .font(.system(size: 14, weight: .light))
+                                }
+                                Spacer()
+                            }
+                            .padding(.vertical, 6)
+                            Divider()
+                        }
+                    }
+                    .frame(maxHeight: 200)
+                }
                 
                 Spacer()
             }
@@ -166,15 +219,19 @@ struct HomeView: View {
                 
                 VStack {
                     
+                    Spacer()
+                    
                     HStack {
+                        
                         
                         Text("All tasks")
                             .font(.system(size: 14, weight: .semibold))
+                            
                         
                         Spacer()
                         
                         Button(action: {
-                            // Edit home sheet here
+                            selectedTab = 2
                         }) {
                             Image(systemName: "arrow.right")
                                 .foregroundColor(.white)
@@ -186,9 +243,12 @@ struct HomeView: View {
                         
                     }
                     
+                    Spacer()
                     
-                    Text("12")
+                    Text("\(tasksVM.tasks.count)")
                         .font(.system(size: 40, weight: .regular))
+                    
+                    Spacer()
                     
                 }
                 .frame(maxWidth: 132, maxHeight: 152)
@@ -237,12 +297,33 @@ struct HomeView: View {
         }
         .padding(.horizontal, 20)
         .backgroundGradient()
-        
-        
+        .onAppear {
+            let uid = authVM.user?.uid ?? ""
+            let locationID = selectedLocationManager.locationID
+            // Do NOT try to fetch if missing either value
+            guard !uid.isEmpty, !locationID.isEmpty else {
+                print("Debug: Skipping fetchTasks: missing user id or locationID onAppear")
+                return
+            }
+            locationsVM.fetchLocations(for: uid) { _ in
+                print("HomeView: Locations fetched via onappear")
+            }
+            tasksVM.fetchTasks(for: uid, locationID: locationID)
+            print("HomeView LocationsViewModel UUID: \(locationsVM.uuid)")
+        }
+        .onChange(of: selectedLocationManager.locationID) { oldID, newID in
+            let uid = authVM.user?.uid ?? ""
+            guard !uid.isEmpty, !newID.isEmpty else {
+                print("Debug: Skipping fetchTasks: missing user id or location id onChange")
+                return
+            }
+            print("LocationID changed from \(oldID) to \(newID)")
+            tasksVM.fetchTasks(for: uid, locationID: newID)
+        }
         
     }
 }
 
 #Preview {
-    HomeView()
+    HomeView(selectedTab: .constant(0))
 }

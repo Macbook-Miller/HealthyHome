@@ -15,6 +15,7 @@ class AuthViewModel: ObservableObject {
     @Published var isLoggedIn: Bool = false
     @Published var authError: String?
     @Published var user: User? = nil
+    @Published var showSelectLocationTab: Bool = false
     
     private var authStateHandle: AuthStateDidChangeListenerHandle?
     
@@ -28,20 +29,26 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    func login(email: String, password: String) {
+    func login(email: String, password: String, completion: @escaping (Bool) -> Void) {
         authError = nil // clearing any prev errors
         
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
             DispatchQueue.main.async {
                 if let error = error {
                     self.authError = error.localizedDescription
+                    completion(false)
                 }
                 else {
                     self.isLoggedIn = true
+                    self.user = result?.user
+                    completion(true)
+                }
+                    
+                   
                 }
             }
         }
-    }
+    
     
     
     func signup(email: String, password: String) {

@@ -1,81 +1,38 @@
-//
-//  LocationsView.swift
-//  HealthyHome
-//
-//  Created by Fred on 30/05/2025.
-//
-
 import SwiftUI
 
 struct LocationsView: View {
     
     @State private var showCreateLocation = false
+    @State private var showFirstLocationSheet = false
     @StateObject private var locationsVM = LocationsViewModel()
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var selectedLocationManager: SelectedLocationManager
+    @Binding var selectedTab: Int
     
     var body: some View {
-        
-        VStack(alignment: .leading, spacing: 16) {
+        VStack {
             Text("Select location")
                 .font(.largeTitle)
                 .fontWeight(.semibold)
                 .padding(.horizontal)
-
-            ScrollView {
-                VStack(spacing: 20) {
-                    ForEach(locationsVM.locations) { location in
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(location.type)
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            Text(location.address)
-                                .font(.title3)
-                                .fontWeight(.semibold)
-
-                            // Simulated progress bar
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .frame(height: 6)
-                                    .foregroundColor(Color.gray.opacity(0.3))
-                                RoundedRectangle(cornerRadius: 4)
-                                    .frame(width: 150, height: 6) // Replace 150 with calculated width
-                                    .foregroundColor(.black)
-                            }
-
-                            HStack {
-                                Text("Type: \(location.type)")
-                                Spacer()
-                                Text("Rooms: \(location.rooms)")
-                            }
-                            .font(.caption)
-
-                            HStack {
-                                Text("Tasks: 0") // Placeholder
-                                Spacer()
-                                Text("Members: \(location.members)")
-                            }
-                            .font(.caption)
-                        }
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(12)
-                        .shadow(radius: 2)
-                        .padding(.horizontal)
-                    }
+            
+            List {
+                ForEach(locationsVM.locations) { location in
+                    locationCell(for: location)
                 }
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
             
-            VStack {
-                Button(action: {
-                    showCreateLocation = true
-                }) {
-                    Text("Create new")
-                        .foregroundColor(Color.white)
-                        .padding()
-                        .frame(maxWidth: 120)
-                        .background(Color("BtnBlack"))
-                        .cornerRadius(8)
-                }
+            Button(action: {
+                showCreateLocation = true
+            }) {
+                Text("New Location")
+                    .foregroundColor(Color.white)
+                    .padding()
+                    .frame(maxWidth: 220)
+                    .background(Color("BtnBlack"))
+                    .cornerRadius(8)
             }
             .padding(.horizontal, 20)
         }
@@ -86,13 +43,121 @@ struct LocationsView: View {
         }
         .onAppear {
             if let uid = authVM.user?.uid {
-                locationsVM.fetchLocations(for: uid)
+                locationsVM.fetchLocations(for: uid) { _ in
+                    for location in locationsVM.locations {
+                        locationsVM.fetchTaskCount(for: uid, locationID: location.id)
+                    }
+                }
             }
+        }
+        .onChange(of: showCreateLocation) { newValue in
+            if newValue == false, let uid = authVM.user?.uid {
+                locationsVM.fetchLocations(for: uid) { _ in }
+            }
+        }
+        .onChange(of: locationsVM.locations.count) {
+            showFirstLocationSheet = (locationsVM.locations.count == 0)
+        }
+        .sheet(isPresented: $showFirstLocationSheet) {
+            FirstLocationSheet(locationsVM: locationsVM)
+                .environmentObject(authVM)
         }
     }
     
+    @ViewBuilder
+    private func locationCell(for location: Location) -> some View {
+        let isSelected = selectedLocationManager.locationID == location.id
+
+        VStack(alignment: .leading, spacing: 0) {
+            // Top Row: Type, Title (left), Illustration (right)
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(location.type)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .padding(.leading, 4)
+                    Text(location.address)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                        .padding(.leading, 4)
+                }
+                Spacer()
+                // Illustration (icon placeholder)
+                Image(systemName: "house.fill")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 72, height: 54)
+                    .foregroundColor(.gray.opacity(0.13))
+                    .offset(y: 8)
+                    .padding(.trailing, 12)
+            }
+            // Card below
+            ZStack {
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(.white)
+                    .shadow(color: .black.opacity(0.09), radius: 8, x: 0, y: 3)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke(isSelected ? Color.blue : .clear, lineWidth: 2)
+                    )
+                VStack(spacing: 8) {
+                    HStack(alignment: .center) {
+                        ProgressView(value: 0.75) // TODO: Replace with actual value
+                            .progressViewStyle(LinearProgressViewStyle(tint: .black))
+                            .frame(height: 6)
+                            .cornerRadius(3)
+                        Spacer()
+                        Text("75%") // TODO: Replace with actual percent
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
+                    }
+                    HStack {
+                        Text("Type: \(location.type)")
+                        Spacer()
+                        Text("Rooms: \(location.rooms)")
+                    }
+                    .font(.caption)
+                    HStack {
+                        Text("Tasks: \(locationsVM.taskCounts[location.id] ?? 0)")
+                        Spacer()
+                        Text("Members: \(location.members)")
+                    }
+                    .font(.caption)
+                }
+                .padding()
+            }
+            .frame(height: 100)
+            .padding(.top, 4)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .onTapGesture {
+            selectedLocationManager.locationID = location.id
+            print("Selected location ID: \(location.id)")
+            selectedTab = 0
+        }
+        .animation(.easeInOut, value: isSelected)
+        .listRowSeparator(.hidden)
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .swipeActions {
+            Button(role: .destructive) {
+                if let uid = authVM.user?.uid {
+                    withAnimation {
+                        locationsVM.deleteLocation(location, for: uid)
+                    }
+                }
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+    }
 }
 
 #Preview {
-    LocationsView()
+    LocationsView(selectedTab: .constant(1))
+        .environmentObject(AuthViewModel())
+        .environmentObject(SelectedLocationManager())
 }
