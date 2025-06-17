@@ -7,9 +7,11 @@ struct LocationsView: View {
     @StateObject private var locationsVM = LocationsViewModel()
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var selectedLocationManager: SelectedLocationManager
+    @EnvironmentObject var tasksVM: TasksViewModel
     @Binding var selectedTab: Int
     
     var body: some View {
+        
         VStack {
             Text("Select location")
                 .font(.largeTitle)
@@ -66,6 +68,9 @@ struct LocationsView: View {
     
     @ViewBuilder
     private func locationCell(for location: Location) -> some View {
+        let locationTasks = tasksVM.tasks.filter { $0.locationID == location.id}
+        let healthPercent = locationTasks.healthPercentage
+        let healthFraction = locationTasks.healthFraction
         let isSelected = selectedLocationManager.locationID == location.id
 
         VStack(alignment: .leading, spacing: 0) {
@@ -103,12 +108,12 @@ struct LocationsView: View {
                     )
                 VStack(spacing: 8) {
                     HStack(alignment: .center) {
-                        ProgressView(value: 0.75) // TODO: Replace with actual value
+                        ProgressView(value: healthFraction)
                             .progressViewStyle(LinearProgressViewStyle(tint: .black))
                             .frame(height: 6)
                             .cornerRadius(3)
                         Spacer()
-                        Text("75%") // TODO: Replace with actual percent
+                        Text("\(healthPercent)")
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundColor(.black)

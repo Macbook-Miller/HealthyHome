@@ -75,7 +75,7 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 20)
                     
-                    Image("House")
+                    Image(HouseImageHelper.imageName(for: healthPercent))
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 160, height: 100)
