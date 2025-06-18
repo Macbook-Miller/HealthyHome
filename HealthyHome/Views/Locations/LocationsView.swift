@@ -15,6 +15,7 @@ struct LocationsView: View {
         VStack {
             Text("Select location")
                 .font(.largeTitle)
+                .foregroundColor(Color("BtnBlack"))
                 .fontWeight(.semibold)
                 .padding(.horizontal)
             
@@ -30,7 +31,7 @@ struct LocationsView: View {
                 showCreateLocation = true
             }) {
                 Text("New Location")
-                    .foregroundColor(Color.white)
+                    .foregroundColor(Color("BoxColor"))
                     .padding()
                     .frame(maxWidth: 220)
                     .background(Color("BtnBlack"))
@@ -79,12 +80,13 @@ struct LocationsView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(location.type)
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color("BtnBlack"))
+                        .opacity(0.3)
                         .padding(.leading, 4)
                     Text(location.address)
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(.black)
+                        .foregroundColor(Color("BtnBlack"))
                         .padding(.leading, 4)
                 }
                 Spacer()
@@ -99,24 +101,24 @@ struct LocationsView: View {
             }
             // Card below
             ZStack {
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(.white)
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color("BoxColor"))
                     .shadow(color: .black.opacity(0.09), radius: 8, x: 0, y: 3)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 18)
+                        RoundedRectangle(cornerRadius: 15)
                             .stroke(isSelected ? Color.blue : .clear, lineWidth: 2)
                     )
                 VStack(spacing: 8) {
                     HStack(alignment: .center) {
                         ProgressView(value: healthFraction)
-                            .progressViewStyle(LinearProgressViewStyle(tint: .black))
+                            .progressViewStyle(LinearProgressViewStyle(tint: Color("BtnBlack")))
                             .frame(height: 6)
                             .cornerRadius(3)
                         Spacer()
-                        Text("\(healthPercent)")
+                        Text("\(healthPercent)%")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(.black)
+                            .foregroundColor(Color("BtnBlack"))
                     }
                     HStack {
                         Text("Type: \(location.type)")
@@ -124,12 +126,14 @@ struct LocationsView: View {
                         Text("Rooms: \(location.rooms)")
                     }
                     .font(.caption)
+                    .foregroundColor(Color("BtnBlack"))
                     HStack {
                         Text("Tasks: \(locationsVM.taskCounts[location.id] ?? 0)")
                         Spacer()
                         Text("Members: \(location.members)")
                     }
                     .font(.caption)
+                    .foregroundColor(Color("BtnBlack"))
                 }
                 .padding()
             }

@@ -73,7 +73,7 @@ struct LoginView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color("BtnBlack"))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color("BoxColor"))
                         .cornerRadius(10)
                 }
                 

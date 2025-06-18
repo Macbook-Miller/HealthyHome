@@ -17,7 +17,7 @@ struct SettingsView: View {
                 authVM.logout()
             }) {
                 Text("Log out")
-                    .foregroundColor(Color.white)
+                    .foregroundColor(Color("BoxColor"))
                     .padding()
                     .frame(maxWidth: .infinity)
                     .background(Color("BtnBlack"))

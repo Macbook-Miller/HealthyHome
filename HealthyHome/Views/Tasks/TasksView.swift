@@ -88,7 +88,7 @@ struct TasksView: View {
                 showCreateTaskSheet = true
             }) {
                 Text("New Task")
-                    .foregroundColor(Color.white)
+                    .foregroundColor(Color("BoxColor"))
                     .padding()
                     .frame(maxWidth: 220)
                     .background(Color("BtnBlack"))

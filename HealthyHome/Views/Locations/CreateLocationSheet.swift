@@ -66,7 +66,7 @@ struct CreateLocationSheet: View {
                     dismiss()
                 }) {
                     Text("Create Location")
-                        .foregroundColor(Color.white)
+                        .foregroundColor(Color("BoxColor"))
                         .padding()
                         .frame(maxWidth: .infinity)
                         .background(Color("BtnBlack"))

@@ -12,6 +12,7 @@ struct HomeView: View {
     @EnvironmentObject var selectedLocationManager: SelectedLocationManager
     @EnvironmentObject var locationsVM: LocationsViewModel
     @EnvironmentObject var tasksVM: TasksViewModel
+    @Environment(\.colorScheme) var colorScheme
     @Binding var selectedTab: Int
     
     var selectedLocation: Location? {
@@ -37,6 +38,7 @@ struct HomeView: View {
                 VStack {
                     Text("\(healthPercent)%")
                         .font(.system(size: 68, weight: .light))
+                        .foregroundColor(Color("BtnBlack"))
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                 }
@@ -46,10 +48,13 @@ struct HomeView: View {
                 
                 VStack {
                     
-                    Image("Clouds")
+                    Image(colorScheme == .dark ? "Moon" : "Clouds")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 200, height: 150)
+                        .frame(
+                            width: colorScheme == .dark ? 100 : 200,
+                            height: colorScheme == .dark ? 100 : 150
+                        )
                         .offset(x: 25, y: -20)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -66,9 +71,11 @@ struct HomeView: View {
                         
                         Text("\(selectedLocation?.type ?? "-")")
                             .font(.system(size: 18, weight: .regular))
+                            .foregroundColor(Color("BtnBlack"))
                             .opacity(0.3)
                         Text("\(selectedLocation?.address ?? "-")")
                             .font(.system(size: 22, weight: .semibold))
+                            .foregroundColor(Color("BtnBlack"))
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
                     }
@@ -102,6 +109,7 @@ struct HomeView: View {
                             Text("Sqm: \(selectedLocation?.sqm ?? 0)")
                         }
                         .font(.system(size: 15, weight: .regular))
+                        .foregroundColor(Color("BtnBlack"))
                         
                         Spacer()
                         
@@ -110,6 +118,7 @@ struct HomeView: View {
                             Text("Members: \(selectedLocation?.members ?? 1)")
                         }
                         .font(.system(size: 15, weight: .regular))
+                        .foregroundColor(Color("BtnBlack"))
                         
                         Spacer()
                         
@@ -118,7 +127,7 @@ struct HomeView: View {
                                 // Edit home sheet here
                             }) {
                                 Image(systemName: "arrow.right")
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color("BoxColor"))
                                     .font(.system(size: 24, weight: .light))
                                     .frame(width: 40, height: 40)
                                     .background(Color("BtnBlack"))
@@ -132,7 +141,7 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: 110)
                 .padding(.horizontal, 20)
-                .background(Color.white)
+                .background(Color("BoxColor"))
                 .cornerRadius(10)
                 
                 
@@ -155,7 +164,7 @@ struct HomeView: View {
                         selectedTab = 2
                     }) {
                         Text("View all")
-                            .foregroundColor(.white)
+                            .foregroundColor(Color("BoxColor"))
                             .font(.system(size: 14, weight: .light))
                             .frame(width: 80, height: 24)
                             .background(Color("BtnBlack"))
@@ -210,7 +219,7 @@ struct HomeView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: 230)
             .padding(.horizontal, 20)
-            .background(Color.white)
+            .background(Color("BoxColor"))
             .cornerRadius(10)
             .offset(y: -30)
             
@@ -234,7 +243,7 @@ struct HomeView: View {
                             selectedTab = 2
                         }) {
                             Image(systemName: "arrow.right")
-                                .foregroundColor(.white)
+                                .foregroundColor(Color("BoxColor"))
                                 .font(.system(size: 14, weight: .light))
                                 .frame(width: 30, height: 30)
                                 .background(Color("BtnBlack"))
@@ -253,7 +262,7 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: 132, maxHeight: 152)
                 .padding(.horizontal, 20)
-                .background(Color.white)
+                .background(Color("BoxColor"))
                 .cornerRadius(10)
                 
                 Spacer()
@@ -271,7 +280,7 @@ struct HomeView: View {
                             // To leaderboard Sheet
                         }) {
                             Image(systemName: "arrow.right")
-                                .foregroundColor(.white)
+                                .foregroundColor(Color("BoxColor"))
                                 .font(.system(size: 14, weight: .light))
                                 .frame(width: 30, height: 30)
                                 .background(Color("BtnBlack"))
@@ -285,7 +294,7 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: 132, maxHeight: 152)
                 .padding(.horizontal, 20)
-                .background(Color.white)
+                .background(Color("BoxColor"))
                 .cornerRadius(10)
                 
             }
